@@ -5,8 +5,10 @@
  *
  * @type {angular.Module}
  */
-angular.module('todomvc', ['ngRoute'])
-	.config(function ($routeProvider) {
+
+// Add the backand and angular-cookies dependencies to angular app definition
+angular.module('todomvc', ['ngRoute', 'backand', 'ngCookies'])
+	.config(function ($routeProvider, BackandProvider) {
 		'use strict';
 
 		var routeConfig = {
@@ -29,4 +31,8 @@ angular.module('todomvc', ['ngRoute'])
 			.otherwise({
 				redirectTo: '/'
 			});
+
+		// Update Angular configuration section
+		BackandProvider.manageDefaultHeaders();
+		BackandProvider.setAppName('myfirstbackand');
 	});

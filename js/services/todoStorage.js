@@ -8,23 +8,30 @@
  * model.
  */
 angular.module('todomvc')
-	.factory('todoStorage', function ($http, $injector) {
+	.factory('todoStorage', function ($http, $injector, Backand) {
 		'use strict';
+		var apiURL = Backand.getApiUrl() + '/1/objects/todo';
 
-		// Detect if an API backend is present. If so, return the API module, else
+		// Try to signin. If so, return the API module, else
 		// hand off the localStorage adapter
-		return $http.get('/api')
-			.then(function () {
-				return $injector.get('api');
-			}, function () {
-				return $injector.get('localStorage');
-			});
+		return Backand.signin("lima.igorribeiro@gmail.com", "12348765")
+			.then(
+				// after successfully signed in,
+				// the authentication token will be saved into a cookie.
+				function (response) {
+					return $injector.get('api');
+				},
+				function (data, status, headers, config) {
+					return $injector.get('localStorage');
+				}
+			);
 	})
 
-	.factory('api', function ($http) {
+	.factory('api', function ($http, Backand) {
 		'use strict';
 
-		var store = {
+		var apiURL = Backand.getApiUrl() + '/1/objects/todo',
+			store = {
 			todos: [],
 
 			clearCompleted: function () {
@@ -42,7 +49,7 @@ angular.module('todomvc')
 
 				angular.copy(incompleteTodos, store.todos);
 
-				return $http.delete('/api/todos')
+				return $http.delete(apiURL)
 					.then(function success() {
 						return store.todos;
 					}, function error() {
@@ -56,7 +63,7 @@ angular.module('todomvc')
 
 				store.todos.splice(store.todos.indexOf(todo), 1);
 
-				return $http.delete('/api/todos/' + todo.id)
+				return $http.delete(apiURL+'/' + todo.id)
 					.then(function success() {
 						return store.todos;
 					}, function error() {
@@ -66,9 +73,9 @@ angular.module('todomvc')
 			},
 
 			get: function () {
-				return $http.get('/api/todos')
+				return $http.get(apiURL)
 					.then(function (resp) {
-						angular.copy(resp.data, store.todos);
+						angular.copy(resp.data.data, store.todos);
 						return store.todos;
 					});
 			},
@@ -76,7 +83,7 @@ angular.module('todomvc')
 			insert: function (todo) {
 				var originalTodos = store.todos.slice(0);
 
-				return $http.post('/api/todos', todo)
+				return $http.post(apiURL, todo)
 					.then(function success(resp) {
 						todo.id = resp.data.id;
 						store.todos.push(todo);
@@ -90,7 +97,7 @@ angular.module('todomvc')
 			put: function (todo) {
 				var originalTodos = store.todos.slice(0);
 
-				return $http.put('/api/todos/' + todo.id, todo)
+				return $http.put(apiURL+'/' + todo.id, todo)
 					.then(function success() {
 						return store.todos;
 					}, function error() {

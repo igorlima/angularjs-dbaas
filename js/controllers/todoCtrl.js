@@ -6,7 +6,7 @@
  * - exposes the model to the template and provides event handlers
  */
 angular.module('todomvc')
-	.controller('TodoCtrl', function TodoCtrl($scope, $routeParams, $filter, store) {
+	.controller('TodoCtrl', function TodoCtrl($scope, $routeParams, $filter, store, Backand, $cookieStore) {
 		'use strict';
 
 		var todos = $scope.todos = store.todos;
@@ -123,4 +123,20 @@ angular.module('todomvc')
 				}
 			});
 		};
+
+		// after successfully signed in, the authentication token will be saved into a cookie.
+		/*
+		$scope.signIn = function() {
+			// Backand.signin($scope.username, $scope.password)
+			Backand.signin("lima.igorribeiro@gmail.com", "12348765")
+			.then(
+				function (response) {
+					//Do good for the world
+				},
+				function (data, status, headers, config) {
+					//handle error
+				}
+			);
+		};
+		*/
 	});
